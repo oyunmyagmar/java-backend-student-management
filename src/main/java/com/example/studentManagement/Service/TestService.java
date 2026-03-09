@@ -18,6 +18,9 @@ public class TestService {
     private PasswordEncoder passwordEncoder; // SecurityConfig-оос орж ирнэ
 
     public String createTestUser(UserRequest request) {
+//        if (userRepository.existsByEmail(request.getEmail())) {
+//            return "Алдаа: Энэ имэйл аль хэдийн бүртгэгдсэн байна!";
+//        }
         if (request != null) {
             User user = new User();
             // Frontend-ээс ирсэн мэдээллийг Entity-ийн талбаруудад оноож байна

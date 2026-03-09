@@ -20,7 +20,7 @@ public class TestController {
     @GetMapping()
     public ResponseEntity<?> test() {
         try {
-            return ResponseEntity.ok("test");
+            return ResponseEntity.ok("test shu");
         } catch (Exception e) {
             throw e;
         }
