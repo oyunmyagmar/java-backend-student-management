@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonAnyGetter;
 //import lombok.Data;
 import lombok.*;
 import org.springframework.validation.annotation.Validated;
+
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -12,5 +13,8 @@ import org.springframework.validation.annotation.Validated;
 @Setter
 public class UserRequest {
     private String username;
+    private String firstName;
+    private String lastName;
     private String email;
+    private String password;
 }
