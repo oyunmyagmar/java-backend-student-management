@@ -1,10 +1,9 @@
 package com.example.studentManagement.Entity;
 
+import com.example.studentManagement.enums.UserStatus;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-
-import java.util.Date;
 
 @Document(collection = "users")
 @Data
@@ -16,4 +15,5 @@ public class User {
     private String lastName;
     private String email;
     private String password;
+    private UserStatus status;
 }

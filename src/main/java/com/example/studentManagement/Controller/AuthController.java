@@ -2,9 +2,11 @@ package com.example.studentManagement.Controller;
 
 import com.example.studentManagement.Dto.Request.LoginRequest;
 import com.example.studentManagement.Dto.Request.UserRequest;
+import com.example.studentManagement.Dto.Response.UserResponse;
 import com.example.studentManagement.Entity.User;
 import com.example.studentManagement.Service.LoginService;
 import com.example.studentManagement.Service.TestService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -26,7 +28,7 @@ public class AuthController {
     public ResponseEntity<?> sendCode(@RequestBody UserRequest request) {
         try {
             // Энд код илгээх логикоо бичнэ (Жишээ нь: testService.sendEmailCode(request))
-            String result = testService.createTestUser(request);
+            UserResponse result = testService.createTestUser(request);
             return ResponseEntity.ok("Баталгаажуулах код амжилттай илгээгдлээ." + result);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body("Алдаа гарлаа: " + e.getMessage());
@@ -47,7 +49,7 @@ public class AuthController {
 //    }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest) {
         try {
             User user = loginService.login(loginRequest);
 
