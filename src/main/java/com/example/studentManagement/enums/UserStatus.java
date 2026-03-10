@@ -6,9 +6,9 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum UserStatus {
-    ACTIVE("ACTIVE", "Үүссэн"),      // Хүснэгт дээр үүссэн боловч хараахан илгээгдээгүй
-    UNACTIVE("UNACTIVE", "Идэвхигүй"),       // Илгээгдсэн
-    ;
+    ACTIVE("ACTIVE", "Идэвхитэй"),      // Баталгаажуулсан хэрэглэгч
+    UNACTIVE("UNACTIVE", "Идэвхигүй"); // Код илгээсэн, хараахан баталгаажуулаагүй
+    
     private final String name;
     private final String value;
 }
