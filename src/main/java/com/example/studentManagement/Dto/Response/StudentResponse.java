@@ -7,9 +7,10 @@ import lombok.*;
 @AllArgsConstructor
 @Getter
 @Setter
-public class UserResponse {
-    private String id;
-    private String username;
-    private String token;
+public class StudentResponse {
     private String message;
+    private String id;
+    private String firstName;
+    private String lastName;
+    private String email;
 }

@@ -9,9 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import com.example.studentManagement.Utils.JwtUtil; // 1. Импорт нэмэх
+import com.example.studentManagement.Utils.JwtUtils; // 1. Импорт нэмэх
 
-import java.util.Optional;
 
 @Service
 public class LoginService {
@@ -23,28 +22,45 @@ public class LoginService {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private JwtUtil jwtUtil;
+    private JwtUtils jwtUtils;
 
     public UserResponse login(LoginRequest loginRequest) {
-        try {
-            User user = userRepository.findByEmail(loginRequest.getEmail());
+        if (loginRequest.getEmail() == null || loginRequest.getEmail().isEmpty()) {
+            throw new RuntimeException("Имэйл хаяг хоосон байж болохгүй.");
+        }
 
-            if (user != null && passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
-                if (user.getStatus() != UserStatus.ACTIVE) {
-                    throw new RuntimeException("Бүртгэл идэвхжээгүй байна. Имэйлээ шалгана уу.");
-                }
 
-                // JWT үүсгэх (Энд өөрийн JwtUtil-ээ дуудна)
-                String token = jwtUtil.generateToken(user.getUsername());
+        if (loginRequest.getPassword() == null || loginRequest.getPassword().isEmpty()) {
+            throw new RuntimeException("Нууц үг хоосон байж болохгүй.");
+        }
 
-                return UserResponse.builder()
-                        .token(token)
-                        .username(user.getUsername())
-                        .message("Амжилттай нэвтэрлээ")
-                        .build();
-            }
-            throw new RuntimeException("Нэвтрэх нэр эсвэл нууц үг буруу.");
-//            System.out.println("request init : " + request.getEmail());
+        if (!userRepository.existsByEmail(loginRequest.getEmail())) {
+            System.out.println("Бүртгэлгүй хэрэглэгч байна.");
+            throw new UsernameNotFoundException("Бүртгэлгүй хэрэглэгч байна.");
+        }
+
+        User user = userRepository.findByEmail(loginRequest.getEmail());
+
+
+        if (user == null || !passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+            throw new RuntimeException("Нууц үг буруу байна.");
+        }
+
+        if (user.getStatus() == UserStatus.UNACTIVE) {
+            throw new RuntimeException("Таны бүртгэл хараахан идэвхжээгүй байна. Имэйлээ баталгаажуулна уу.");
+        }
+
+        String token = jwtUtils.generateToken(user.getEmail());
+
+        return UserResponse.builder()
+                .id(user.getId())
+                .username(user.getUsername())
+                .token(token)
+                .message("Амжилттай нэвтэрлээ.")
+                .build();
+    }
+}
+//  System.out.println("request init : " + request.getEmail());
 //            if (request.getEmail() == null) {
 //                throw new NullPointerException("Email hooson baij bolohgui");
 //            }
@@ -62,10 +78,3 @@ public class LoginService {
 //                    return userDetail; // Нууц үг таарвал User объектыг буцаана
 //                }
 //            }
-//
-//            return userDetail;
-        } catch (Exception e) {
-            throw e;
-        }
-    }
-}

@@ -27,7 +27,6 @@ public class AuthController {
     @PostMapping("/send-code")
     public ResponseEntity<?> sendCode(@RequestBody UserRequest request) {
         try {
-            // Энд код илгээх логикоо бичнэ (Жишээ нь: testService.sendEmailCode(request))
             UserResponse result = testService.createUser(request);
             return ResponseEntity.ok(Map.of("result", true, "data", result.getMessage()));
 //            return ResponseEntity.ok("Баталгаажуулах код амжилттай илгээгдлээ." + result);
