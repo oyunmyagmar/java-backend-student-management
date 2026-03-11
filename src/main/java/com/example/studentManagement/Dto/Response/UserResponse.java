@@ -12,4 +12,5 @@ public class UserResponse {
     private String username;
     private String token;
     private String message;
+    private Boolean isDeleted;
 }

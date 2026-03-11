@@ -41,7 +41,7 @@ public class StudentService {
 
     public List<Student> getRecentStudents() {
         try {
-            return studentRepository.findAllByOrderByIdDesc();
+            return studentRepository.findAllByIsDeletedFalseOrderByIdDesc();
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
@@ -49,23 +49,23 @@ public class StudentService {
     }
 
     public long getTotalStudentCount() {
-        return studentRepository.count();
+        return studentRepository.countByIsDeletedFalse();
     }
 
     public long getActiveStudentCount() {
-        return studentRepository.countByStatus(StudentStatus.ACTIVE);
+        return studentRepository.countByStatusAndIsDeletedFalse(StudentStatus.ACTIVE);
     }
 
     public long getInactiveStudentCount() {
-        return studentRepository.countByStatus(StudentStatus.INACTIVE);
+        return studentRepository.countByStatusAndIsDeletedFalse(StudentStatus.INACTIVE);
     }
 
     public void deleteStudent(String id) {
-        if (studentRepository.existsById(id)) {
-            studentRepository.deleteById(id);
-        } else {
-            throw new RuntimeException("Оюутан олдсонгүй!");
-        }
+        Student student = studentRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Оюутан олдсонгүй!"));
+
+        student.setIsDeleted(true);
+        studentRepository.save(student);
     }
 
     public StudentResponse updateStudent(String id, StudentRequest request) {

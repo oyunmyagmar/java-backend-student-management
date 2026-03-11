@@ -15,4 +15,5 @@ public class Student {
     private String lastName;
     private String email;
     private StudentStatus status;
+    private Boolean isDeleted = false;
 }
