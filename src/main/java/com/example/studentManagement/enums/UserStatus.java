@@ -7,8 +7,8 @@ import lombok.Getter;
 @Getter
 public enum UserStatus {
     ACTIVE("ACTIVE", "Идэвхитэй"),      // Баталгаажуулсан хэрэглэгч
-    UNACTIVE("UNACTIVE", "Идэвхигүй"); // Код илгээсэн, хараахан баталгаажуулаагүй
-    
+    INACTIVE("INACTIVE", "Идэвхигүй"); // Код илгээсэн, хараахан баталгаажуулаагүй
+
     private final String name;
     private final String value;
 }

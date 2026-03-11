@@ -39,11 +39,22 @@ public class StudentController {
         return ResponseEntity.ok(studentService.getRecentStudents());
     }
 
-    @GetMapping("/count")
-    public ResponseEntity<Long> getStudentCount() {
-        long count = studentService.getTotalStudentCount();
-        return ResponseEntity.ok(count);
+    @GetMapping("/counts")
+    public ResponseEntity<?> getStudentCount() {
+        try {
+            long total = studentService.getTotalStudentCount();
+            long active = studentService.getActiveStudentCount();
+            long inactive = studentService.getInactiveStudentCount();
+            return ResponseEntity.ok(Map.of(
+                    "total", total,
+                    "active", active,
+                    "inactive", inactive
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        }
     }
+
 
     @DeleteMapping("/delete-student/{id}")
     public ResponseEntity<?> deleteStudent(@PathVariable String id) {
@@ -54,5 +65,30 @@ public class StudentController {
             return ResponseEntity.status(404).body(e.getMessage());
         }
     }
+
+    @PutMapping("/update-student/{id}")
+    public ResponseEntity<?> updateStudent(@PathVariable String id, @RequestBody StudentRequest request) {
+        try {
+            StudentResponse result = studentService.updateStudent(id, request);
+
+            return ResponseEntity.ok(Map.of(
+                    "result", true,
+                    "message", result.getMessage(),
+                    "data", result
+            ));
+        } catch (RuntimeException e) {
+            // Оюутан олдохгүй эсвэл бусад логик алдаа гарвал
+            return ResponseEntity.status(404).body(Map.of(
+                    "result", false,
+                    "message", e.getMessage()
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of(
+                    "result", false,
+                    "message", "Сервер талд алдаа гарлаа"
+            ));
+        }
+    }
+
 
 }

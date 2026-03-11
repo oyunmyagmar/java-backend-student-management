@@ -46,7 +46,7 @@ public class LoginService {
             throw new RuntimeException("Нууц үг буруу байна.");
         }
 
-        if (user.getStatus() == UserStatus.UNACTIVE) {
+        if (user.getStatus() == UserStatus.INACTIVE) {
             throw new RuntimeException("Таны бүртгэл хараахан идэвхжээгүй байна. Имэйлээ баталгаажуулна уу.");
         }
 

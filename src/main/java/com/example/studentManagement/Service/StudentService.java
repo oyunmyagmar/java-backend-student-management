@@ -26,7 +26,7 @@ public class StudentService {
         student.setFirstName(request.getFirstName());
         student.setLastName(request.getLastName());
         student.setEmail(request.getEmail());
-        student.setStatus(StudentStatus.UNACTIVE);
+        student.setStatus(StudentStatus.INACTIVE);
 
         Student savedStudent = studentRepository.save(student);
 
@@ -41,7 +41,7 @@ public class StudentService {
 
     public List<Student> getRecentStudents() {
         try {
-            return studentRepository.findStudentByOrderByIdDesc();
+            return studentRepository.findAllByOrderByIdDesc();
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
@@ -52,6 +52,14 @@ public class StudentService {
         return studentRepository.count();
     }
 
+    public long getActiveStudentCount() {
+        return studentRepository.countByStatus(StudentStatus.ACTIVE);
+    }
+
+    public long getInactiveStudentCount() {
+        return studentRepository.countByStatus(StudentStatus.INACTIVE);
+    }
+
     public void deleteStudent(String id) {
         if (studentRepository.existsById(id)) {
             studentRepository.deleteById(id);
@@ -59,5 +67,40 @@ public class StudentService {
             throw new RuntimeException("Оюутан олдсонгүй!");
         }
     }
+
+    public StudentResponse updateStudent(String id, StudentRequest request) {
+        Student student = studentRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Оюутан олдсонгүй!"));
+
+        student.setFirstName(request.getFirstName());
+        student.setLastName(request.getLastName());
+
+        if (!student.getEmail().equals(request.getEmail()) && studentRepository.existsByEmail(request.getEmail())) {
+            throw new RuntimeException("Энэ имэйл хаяг аль хэдийн бүртгэгдсэн байна.");
+        }
+        student.setEmail(request.getEmail());
+
+        if (request.getStatus() != null) {
+            try {
+                student.setStatus(StudentStatus.valueOf(request.getStatus().toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                throw new RuntimeException("Буруу статус ирлээ: " + request.getStatus());
+            }
+        }
+
+        Student updatedStudent = studentRepository.save(student);
+
+
+        return StudentResponse.builder()
+                .id(updatedStudent.getId())
+                .firstName(updatedStudent.getFirstName())
+                .lastName(updatedStudent.getLastName())
+                .email(updatedStudent.getEmail())
+                .status(updatedStudent.getStatus().name())
+                .message("Амжилттай шинэчлэгдлээ.")
+                .build();
+    }
+
+
 }
 

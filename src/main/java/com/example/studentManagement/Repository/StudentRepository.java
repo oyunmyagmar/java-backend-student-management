@@ -11,7 +11,9 @@ import java.util.List;
 public interface StudentRepository extends MongoRepository<Student, String> {
     boolean existsByEmail(String email);
 
-    List<Student> findStudentByOrderByIdDesc();
+    List<Student> findAllByOrderByIdDesc();
 
     long count();
+
+    long countByStatus(StudentStatus status);
 }

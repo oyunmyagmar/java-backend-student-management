@@ -28,7 +28,7 @@ public class TestService {
 
             String code = String.valueOf((int) ((Math.random() * 900000) + 100000));
             System.out.println("DEBUG: Баталгаажуулах код: " + code);
-            
+
             User user = new User();
             user.setUsername(request.getEmail());
             user.setFirstName(request.getFirstName());
@@ -36,7 +36,7 @@ public class TestService {
             user.setEmail(request.getEmail());
             user.setPassword(passwordEncoder.encode(request.getPassword()));
             user.setActivationCode(code);
-            user.setStatus(UserStatus.UNACTIVE);
+            user.setStatus(UserStatus.INACTIVE);
 
 
             userRepository.save(user);
