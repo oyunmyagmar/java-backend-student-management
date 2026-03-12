@@ -17,6 +17,38 @@ public class StudentService {
     @Autowired
     private StudentRepository studentRepository;
 
+    public List<Student> getRecentStudents() {
+        try {
+            return studentRepository.findAllByIsDeletedFalseOrderByIdDesc();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    public StudentResponse getStudentById(String id) {
+        return studentRepository.findByIdAndIsDeletedFalse(id)
+                .map(student -> StudentResponse.builder()
+                        .id(student.getId()).firstName(student.getFirstName())
+                        .lastName(student.getLastName()).email(student.getEmail())
+                        .status(student.getStatus().name())
+                        .avatarUrl(student.getAvatarUrl())
+                        .build()).orElseThrow(() -> new RuntimeException("Оюутан олдсонгүй!"));
+
+    }
+
+    public long getTotalStudentCount() {
+        return studentRepository.countByIsDeletedFalse();
+    }
+
+    public long getActiveStudentCount() {
+        return studentRepository.countByStatusAndIsDeletedFalse(StudentStatus.ACTIVE);
+    }
+
+    public long getInactiveStudentCount() {
+        return studentRepository.countByStatusAndIsDeletedFalse(StudentStatus.INACTIVE);
+    }
+
     public StudentResponse createStudent(StudentRequest request) {
         if (studentRepository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("Энэ имэйл хаяг бүртгэгдсэн байна.");
@@ -39,31 +71,12 @@ public class StudentService {
                 .build();
     }
 
-    public List<Student> getRecentStudents() {
-        try {
-            return studentRepository.findAllByIsDeletedFalseOrderByIdDesc();
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
-        }
-    }
-
-    public long getTotalStudentCount() {
-        return studentRepository.countByIsDeletedFalse();
-    }
-
-    public long getActiveStudentCount() {
-        return studentRepository.countByStatusAndIsDeletedFalse(StudentStatus.ACTIVE);
-    }
-
-    public long getInactiveStudentCount() {
-        return studentRepository.countByStatusAndIsDeletedFalse(StudentStatus.INACTIVE);
-    }
 
     public void deleteStudent(String id) {
         Student student = studentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Оюутан олдсонгүй!"));
 
+        student.setEmail(student.getEmail() + "_deleted_" + System.currentTimeMillis());
         student.setIsDeleted(true);
         studentRepository.save(student);
     }
@@ -101,6 +114,14 @@ public class StudentService {
                 .build();
     }
 
+    public void updateStudentAvatar(String id, String avatarUrl) {
+        Student student = studentRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Оюутан олдсонгүй: " + id));
+
+        student.setAvatarUrl(avatarUrl);
+
+        studentRepository.save(student);
+    }
 
 }
 

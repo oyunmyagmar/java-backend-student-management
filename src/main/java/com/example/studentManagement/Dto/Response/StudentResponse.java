@@ -15,4 +15,5 @@ public class StudentResponse {
     private String status;
     private String message;
     private Boolean isDeleted;
+    private String avatarUrl;
 }

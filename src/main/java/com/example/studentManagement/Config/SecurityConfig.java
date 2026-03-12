@@ -23,14 +23,13 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
-                // CORS тохиргоог идэвхжүүлэх
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
-                        // 1. OPTIONS хүсэлтийг бүгдийг нь зөвшөөрөх (МАШ ЧУХАЛ)
+                        // OPTIONS хүсэлтүүдийг зөвшөөрөх
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        // 2. Auth API-г зөвшөөрөх
-                        .requestMatchers("/api/auth/**").permitAll()
-                        // 3. Бусад бүх хүсэлтийг одоогоор нээлттэй үлдээе
+                        // Auth болон Uploads замыг нээлттэй болгох
+                        .requestMatchers("/api/auth/**", "/uploads/**").permitAll()
+                        // Бусад бүх хүсэлтийг зөвшөөрөх
                         .anyRequest().permitAll()
                 );
         return http.build();
@@ -39,13 +38,10 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // Frontend хаягаа яг зөв байгаа эсэхийг шалгаарай (localhost:3000)
         configuration.setAllowedOrigins(List.of("http://localhost:3000"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        // Бүх header-ийг зөвшөөрөх
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
-        // Энэ тохиргоог хэр удаан барихыг зааж өгнө (секундээр)
         configuration.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
