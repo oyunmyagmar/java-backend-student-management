@@ -28,7 +28,7 @@ public class SecurityConfig {
                         // OPTIONS хүсэлтүүдийг зөвшөөрөх
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         // Auth болон Uploads замыг нээлттэй болгох
-                        .requestMatchers("/api/auth/**", "/uploads/**").permitAll()
+                        .requestMatchers("/api/auth/**", "/upload/**").permitAll()
                         // Бусад бүх хүсэлтийг зөвшөөрөх
                         .anyRequest().permitAll()
                 );

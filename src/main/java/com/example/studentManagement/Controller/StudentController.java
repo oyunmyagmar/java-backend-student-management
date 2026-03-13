@@ -6,17 +6,12 @@ import com.example.studentManagement.Entity.Student;
 import com.example.studentManagement.Service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.StringUtils;
+
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Map;
 
@@ -29,8 +24,10 @@ public class StudentController {
     private StudentService studentService;
 
     @GetMapping("/recent")
-    public ResponseEntity<List<Student>> getRecentStudents() {
-        return ResponseEntity.ok(studentService.getRecentStudents());
+    public ResponseEntity<List<Student>> getRecentStudents(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String status) {
+        return ResponseEntity.ok(studentService.getFilteredStudents(search, status));
     }
 
     @GetMapping("/students/{id}")
@@ -65,40 +62,31 @@ public class StudentController {
         ));
     }
 
-
-    private final String UPLOAD_DIR = "C:/Users/Artvision/Documents/uploads/";
-
     @PostMapping("/students/{id}/upload-avatar")
     public ResponseEntity<?> uploadAvatar(@PathVariable String id, @RequestParam("file") MultipartFile file) {
+        // Энгийн шалгалтууд контроллер дээр үлдэж болно
         if (file.isEmpty()) {
-            return ResponseEntity.badRequest().body("Файл сонгоогүй байна.");
+            return ResponseEntity.badRequest().body(Map.of("result", false, "message", "Файл сонгоогүй байна."));
+        }
+
+        String contentType = file.getContentType();
+        if (contentType == null || !contentType.startsWith("image/")) {
+            return ResponseEntity.badRequest().body(Map.of("result", false, "message", "Зөвхөн зураг оруулна уу."));
         }
 
         try {
-            // 1. Хавтас үүсгэх
-            File directory = new File(UPLOAD_DIR);
-            if (!directory.exists()) {
-                directory.mkdirs(); // mkdirs() нь бүх шатны хавтаснуудыг үүсгэдэг
-            }
-
-            // 2. Файлын нэр (id_timestamp.extension)
-            String extension = StringUtils.getFilenameExtension(file.getOriginalFilename());
-            String fileName = id + "_" + System.currentTimeMillis() + "." + extension;
-            Path path = Paths.get(UPLOAD_DIR + fileName);
-
-            // 3. Файлыг хадгалах
-            Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
-
-            // 4. URL-ийг DB-д хадгалах (Бүрэн хаягаар нь)
-            String fileUrl = "http://localhost:8086/uploads/" + fileName;
-            studentService.updateStudentAvatar(id, fileUrl);
+            // Бүх хүнд логикийг Service-ээс дуудаж байна
+            String fileUrl = studentService.uploadAndSaveAvatar(id, file);
 
             return ResponseEntity.ok(Map.of(
+                    "result", true,
                     "url", fileUrl,
-                    "message", "Зураг амжилттай солигдлоо"
+                    "message", "Аватар амжилттай шинэчлэгдлээ"
             ));
         } catch (IOException e) {
-            return ResponseEntity.status(500).body("Сервер дээр файл хадгалахад алдаа гарлаа: " + e.getMessage());
+            return ResponseEntity.status(500).body(Map.of("result", false, "message", "Файл хадгалахад алдаа гарлаа: " + e.getMessage()));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).body(Map.of("result", false, "message", e.getMessage()));
         }
     }
 

@@ -8,8 +8,16 @@ import com.example.studentManagement.enums.StudentStatus;
 import org.bson.json.JsonObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 import tools.jackson.databind.util.JSONPObject;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 @Service
@@ -103,7 +111,6 @@ public class StudentService {
 
         Student updatedStudent = studentRepository.save(student);
 
-
         return StudentResponse.builder()
                 .id(updatedStudent.getId())
                 .firstName(updatedStudent.getFirstName())
@@ -114,13 +121,37 @@ public class StudentService {
                 .build();
     }
 
-    public void updateStudentAvatar(String id, String avatarUrl) {
+    public String uploadAndSaveAvatar(String id, MultipartFile file) throws IOException {
+        // 1. Файл хадгалах байршил тохируулах
+        String uploadDir = "C:/upload/";
+        File folder = new File(uploadDir);
+        if (!folder.exists()) {
+            folder.mkdirs();
+        }
+        // 2. Файлын нэрийг үүсгэх
+        String filename = System.currentTimeMillis() + "_" + StringUtils.cleanPath(file.getOriginalFilename());
+        Path path = Paths.get(uploadDir + filename);
+        // 3. Файлыг диск дээр хадгалах
+        Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
+        // 4. DB-д хадгалах URL замыг бэлдэх
+        String fileUrl = "/upload/" + filename;
+        // 5. DB-д хадгалах логик
         Student student = studentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Оюутан олдсонгүй: " + id));
 
-        student.setAvatarUrl(avatarUrl);
-
+        student.setAvatarUrl(fileUrl);
         studentRepository.save(student);
+        return fileUrl; // Frontend-д хэрэгтэй учир URL-ыг буцаана
+    }
+
+
+    public List<Student> getFilteredStudents(String search, String status) {
+        String searchPattern = (search == null) ? "" : search;
+
+        // Хэрэв status "ALL" эсвэл хоосон байвал null болгож баазад мэдэгдэнэ
+        String statusParam = (status == null || status.equals("ALL") || status.isEmpty()) ? null : status;
+
+        return studentRepository.findByFilters(searchPattern, statusParam);
     }
 
 }

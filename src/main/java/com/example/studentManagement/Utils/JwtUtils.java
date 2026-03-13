@@ -16,7 +16,7 @@ public class JwtUtils {
 
     // 1. Тогтмол нууц үг (Энэ текст 32-оос олон тэмдэгттэй байх ёстой)
     private final String SECRET_KEY = "your-very-secure-static-secret-key-for-student-management-system";
-    private final int expirationMs = 120000; // 2 min
+    private final int expirationMs = 900000; // 2 min
 
     // Нууц үгийг алгоритмд тохирох Key формат руу хөрвүүлэх
     private SecretKey getSigningKey() {
